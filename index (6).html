@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Piala Pengarah Yayasan Negeri Sembilan</title>
+<meta name="description" content="Skor langsung, jadual dan kedudukan Kejohanan Bola Tampar Piala Pengarah Yayasan Negeri Sembilan, RKS Senawang.">
+<meta property="og:title" content="Piala Pengarah Yayasan Negeri Sembilan · Bola Tampar">
+<meta property="og:description" content="Skor langsung, jadual dan kedudukan pasukan. RKS Senawang, mula 9:00 pagi.">
+<meta property="og:image" content="logo-yns.png">
+<meta name="theme-color" content="#16150f">
+<link rel="icon" href="logo-yns.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: black header band in Negeri Sembilan colours, live scoreboard on top, standings + schedule beneath (two columns wide, one column on phone) */
+:root{
+  --bg:#f5f3ee; --surface:#ffffff; --surface-2:#ece9e1; --fg:#1b1a17; --muted:#6b675d; --line:#d9d4c8;
+  --red:#d71f26; --yellow:#f5c400; --black:#16150f; --on-dark:#fbfaf6;
+  --good:#1f7a3f; --good-bg:#e3f2e7; --warn-bg:#fff4c2; --warn:#7a5b00;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121210; --surface:#1c1b18; --surface-2:#26241f; --fg:#f1eee6; --muted:#a29d90; --line:#36332c;
+  --red:#ef3b41; --yellow:#ffd21f; --good:#5fcf87; --good-bg:#183524; --warn-bg:#3a3008; --warn:#ffd96b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121210; --surface:#1c1b18; --surface-2:#26241f; --fg:#f1eee6; --muted:#a29d90; --line:#36332c;
+  --red:#ef3b41; --yellow:#ffd21f; --good:#5fcf87; --good-bg:#183524; --warn-bg:#3a3008; --warn:#ffd96b; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+.num{font-variant-numeric:tabular-nums}
+
+/* header */
+header{background:var(--black);color:var(--on-dark);position:relative}
+header .wrap{display:flex;gap:18px;align-items:center;padding-block:18px 22px}
+.logos{display:flex;align-items:center;gap:8px;flex:none}
+.logos img{width:62px;height:62px;object-fit:contain;background:#fff;border-radius:10px;padding:5px}
+.logos .x{color:var(--yellow);font-family:var(--display);font-weight:700;font-size:18px}
+.partners{font-size:13px;color:#cfcabd;margin-top:4px}
+.partners b{color:var(--on-dark);font-weight:600}
+@media (max-width:420px){.logos img{width:52px;height:52px}}
+.eyebrow{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.12em;font-size:13px;color:var(--yellow)}
+header h1{font-size:clamp(26px,5vw,40px);font-weight:800;text-transform:uppercase;line-height:1;letter-spacing:.01em}
+.meta{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:6px;font-size:14px;color:#cfcabd}
+.meta b{color:var(--on-dark);font-weight:600}
+.stripe{height:8px;background:linear-gradient(135deg,var(--black) 0 33%,var(--red) 33% 66%,var(--yellow) 66%)}
+.mode{margin-left:auto;align-self:flex-start;font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;border:1px solid #4a473e;color:#cfcabd;white-space:nowrap}
+.mode.live{border-color:var(--yellow);color:var(--yellow)}
+
+main{display:grid;gap:22px;padding-block:22px 40px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+.sec-h h2{font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.sec-h small{color:var(--muted);font-size:13px}
+
+/* scoreboard */
+.board{background:var(--black);color:var(--on-dark);border-radius:14px;overflow:hidden}
+.board-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid #2f2d26;font-size:13px;color:#cfcabd}
+.board-top select{font:inherit;background:#26241f;color:var(--on-dark);border:1px solid #4a473e;border-radius:8px;padding:4px 8px;max-width:100%}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--display);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:13px;padding:2px 10px;border-radius:99px}
+.pill.live{background:var(--red);color:#fff}
+.pill.live::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;animation:blink 1.2s infinite}
+.pill.done{background:var(--good-bg);color:var(--good)}
+.pill.next{background:#2f2d26;color:#cfcabd}
+@keyframes blink{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.pill.live::before{animation:none}}
+.teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:stretch}
+.side{padding:18px 16px 16px;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;text-align:center}
+.side .tname{font-family:var(--display);font-weight:700;font-size:clamp(18px,3.2vw,28px);text-transform:uppercase;line-height:1.05;display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap}
+.serve{width:14px;height:14px;border-radius:50%;background:var(--yellow);box-shadow:inset -3px -2px 0 rgba(0,0,0,.25);flex:none}
+.serve[hidden]{display:none!important}
+.pts{font-family:var(--display);font-weight:800;font-size:clamp(72px,16vw,150px);line-height:.9;font-variant-numeric:tabular-nums}
+.side.a .pts{color:var(--on-dark)}
+.setsw{display:flex;gap:6px}
+.setsw i{width:16px;height:16px;border-radius:4px;border:2px solid #5a564b}
+.setsw i.on{background:var(--yellow);border-color:var(--yellow)}
+.mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 6px;font-family:var(--display);color:#9d988a}
+.mid .setno{font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--yellow)}
+.mid .to{font-size:13px}
+.ctrl{display:flex;gap:8px;width:100%;max-width:260px}
+.btn{font:inherit;font-family:var(--display);font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:10px;border:0;cursor:pointer;padding:10px 14px;font-size:17px}
+.btn:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.btn.plus{flex:1;background:var(--yellow);color:var(--black);font-size:26px;padding:14px}
+.side.b .btn.plus{background:var(--red);color:#fff}
+.btn.minus{background:#2f2d26;color:var(--on-dark);min-width:56px}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.history{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:12px 16px;border-top:1px solid #2f2d26}
+.chip{font-family:var(--display);font-weight:600;font-size:15px;background:#26241f;border-radius:8px;padding:3px 10px;color:#cfcabd}
+.chip b{color:var(--on-dark)}
+.chip.cur{outline:1px solid var(--yellow)}
+.notice{margin:0 16px 12px;padding:8px 12px;border-radius:8px;background:var(--yellow);color:var(--black);font-weight:600;font-size:14px;text-align:center}
+.tools{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:0 16px 14px}
+.btn.ghost{background:transparent;color:#cfcabd;border:1px solid #4a473e;font-size:14px;padding:7px 12px}
+.btn.danger{background:var(--red);color:#fff;font-size:14px;padding:7px 12px}
+.winner{text-align:center;padding:4px 16px 16px;font-family:var(--display);font-size:20px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.04em}
+
+.grid2{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:860px){.grid2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.teams{grid-template-columns:1fr 1fr}.mid{grid-column:1/-1;grid-row:1;flex-direction:row;gap:12px;padding:10px 0 0}}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:14px}
+th{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:12.5px;color:var(--muted);text-align:center;padding:10px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{text-align:center;padding:11px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.team,th.team{text-align:left;padding-left:14px}
+td.team{font-family:var(--display);font-weight:700;font-size:17px;text-transform:uppercase}
+td.rank{font-family:var(--display);font-weight:800;font-size:18px;width:36px}
+tr.first td.rank{color:var(--black);background:var(--yellow)}
+td.pts{font-family:var(--display);font-weight:800;font-size:20px}
+.legend{padding:10px 14px;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
+
+.matches{display:grid;gap:10px}
+.m{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.m.sel{border-color:var(--red);box-shadow:0 0 0 1px var(--red)}
+.m .time{font-family:var(--display);font-weight:700;font-size:18px;line-height:1}
+.m .time small{display:block;font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.06em;margin-top:3px}
+.m .vs{display:grid;gap:3px;min-width:0}
+.m .row{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.m .row span{font-family:var(--display);font-weight:600;font-size:17px;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.m .row.w span{font-weight:800}
+.m .row.w span::after{content:" ✓";color:var(--good)}
+.m .row em{font-style:normal;font-family:var(--display);font-weight:700;font-size:17px;font-variant-numeric:tabular-nums}
+.m .sets{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.m .act{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.tag{font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.tag.done{background:var(--good-bg);color:var(--good)}
+.tag.live{background:var(--red);color:#fff}
+.tag.next{background:var(--surface-2);color:var(--muted)}
+.btn.small{font-size:13px;padding:6px 10px;background:var(--black);color:var(--on-dark)}
+:root[data-theme="dark"] .btn.small{background:var(--surface-2)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.small{background:var(--surface-2)}}
+.rules{font-size:13.5px;color:var(--muted);display:grid;gap:4px;padding:14px;background:var(--surface-2);border-radius:12px}
+.rules b{color:var(--fg)}
+.hdr-r{margin-left:auto;align-self:flex-start;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.hdr-r .mode{margin-left:0}
+.btn.admin-btn{font-size:14px;padding:7px 14px;background:var(--yellow);color:var(--black)}
+.btn.admin-btn.on{background:transparent;color:var(--yellow);border:1px solid var(--yellow)}
+@media (max-width:620px){header .wrap{flex-wrap:wrap}.hdr-r{flex-direction:row;margin-left:0;width:100%;justify-content:space-between;align-items:center}}
+.sr{position:absolute;left:-9999px}
+.login{margin-top:16px;background:var(--surface);border:2px solid var(--yellow);border-radius:12px}
+.login-in{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;padding:14px 16px}
+.login h3{font-size:20px;text-transform:uppercase;letter-spacing:.03em}
+.login p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.login p.err{color:var(--red);font-weight:600}
+.login-row{display:flex;gap:8px;flex-wrap:wrap}
+.login input,.manual input{font:inherit;font-family:var(--display);font-size:20px;font-weight:700;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);width:140px}
+.login input:focus-visible,.manual input:focus-visible{outline:3px solid var(--yellow);outline-offset:1px}
+.btn.login-go{background:var(--black);color:var(--on-dark)}
+.btn.login-x{background:var(--surface-2);color:var(--fg)}
+:root[data-theme="dark"] .btn.login-go{background:var(--yellow);color:var(--black)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.login-go{background:var(--yellow);color:var(--black)}}
+.manual{border-top:1px solid #2f2d26;padding:14px 16px 16px;display:grid;gap:10px}
+.manual h3{font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--yellow)}
+.manual .sets-in{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.manual fieldset{border:1px solid #3a372f;border-radius:10px;padding:8px 10px 10px;margin:0;min-width:0}
+.manual legend{font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#cfcabd;padding:0 4px}
+.manual .pair{display:flex;align-items:center;gap:6px}
+.manual .pair input{width:100%;min-width:0;text-align:center;background:#26241f;color:var(--on-dark);border-color:#4a473e}
+.manual .pair span{color:#9d988a}
+.manual .names{display:flex;justify-content:space-between;font-size:12px;color:#9d988a;gap:6px}
+.manual .names span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.manual .foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.manual .msg{font-size:14px;color:#cfcabd}
+.manual .msg.err{color:#ff8a8e}
+.manual .msg.ok{color:#7fe0a2}
+@media (max-width:520px){.manual .sets-in{grid-template-columns:minmax(0,1fr)}}
+.sc-wrap{overflow-x:auto;padding:6px 8px 4px}
+.sc{font-variant-numeric:tabular-nums;color:var(--on-dark)}
+.sc th,.sc td{border-bottom:1px solid #2f2d26;padding:10px 8px;color:#9d988a}
+.sc tbody tr:last-child th,.sc tbody tr:last-child td{border-bottom:0}
+.sc th.tn{text-align:left;padding-left:10px}
+.sc tbody th.tn{font-family:var(--display);font-weight:700;font-size:clamp(18px,3.4vw,30px);text-transform:uppercase;color:var(--on-dark);letter-spacing:0;white-space:normal;line-height:1.05;min-width:120px}
+.sc td.set{font-family:var(--display);font-weight:700;font-size:clamp(26px,5vw,46px);color:#b9b4a6;width:16%}
+.sc td.set.w{color:var(--on-dark)}
+.sc td.set.prog{color:var(--yellow)}
+.sc td.set.empty{color:#4a473e;font-size:24px}
+.sc td.won{font-family:var(--display);font-weight:800;font-size:clamp(34px,7vw,64px);color:var(--black);background:var(--yellow);width:14%}
+.sc tbody tr:nth-child(2) td.won{background:var(--red);color:#fff}
+.sc th.won{color:#9d988a}
+.sc tr.winrow th.tn::after{content:" ✓";color:var(--yellow)}
+.status{text-align:center;padding:10px 16px 14px;color:#cfcabd;font-size:14px}
+.tech{display:flex;gap:14px;align-items:center;margin-top:12px;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.tech img{width:64px;height:64px;object-fit:contain;flex:none}
+.tech-k{font-family:var(--display);font-weight:600;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--red)}
+.tech-n{font-family:var(--display);font-weight:700;font-size:20px;line-height:1.1;text-transform:uppercase;text-wrap:balance}
+.tech-s{font-size:13px;color:var(--muted);margin-top:2px}
+footer{border-top:1px solid var(--line);padding-block:16px 28px;color:var(--muted);font-size:13px}
+footer .wrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+footer img{width:28px;height:28px;object-fit:contain}
+.confirm{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;color:var(--on-dark);font-size:14px}
+</style>
+<style>
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+.mode .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:6px;vertical-align:1px}
+.mode.live .dot{animation:blink 1.6s infinite}
+.mode.err{border-color:var(--red);color:#ff8a8e}
+.warn{margin:0 16px 14px;padding:8px 12px;border-radius:8px;background:#3a1416;color:#ffb3b5;font-size:14px;text-align:center}
+.tag.chk{background:var(--warn-bg);color:var(--warn)}
+.refresh{font:inherit;font-size:12px;font-weight:600;background:transparent;color:#cfcabd;border:1px solid #4a473e;border-radius:99px;padding:4px 10px;cursor:pointer}
+.refresh:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.reset-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:10px;border-top:1px dashed #3a372f}
+.reset-row .rq{color:#ffb3b5;font-size:14px;font-weight:600;flex-basis:100%}
+.btn.danger-txt{color:#ff8a8e;border-color:#6a2a2d}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="logos"><img src="logo-yns.png" alt="Logo Yayasan Negeri Sembilan" width="62" height="62"></div>
+    <div style="min-width:0">
+      <div class="eyebrow">Kejohanan Bola Tampar</div>
+      <h1>Piala Pengarah Yayasan Negeri Sembilan</h1>
+      <div class="meta"><span>Venue <b>RKS Senawang</b></span><span>Mula <b>10:30 pagi</b></span><span>Gelanggang <b>1</b></span><span>Format <b>Terbaik 3 set · 15 mata</b></span></div>
+    </div>
+    <div class="hdr-r"><span class="mode" id="mode"><span class="dot"></span>Memuatkan…</span><button class="refresh" id="refresh" type="button">Muat semula</button><button class="btn admin-btn" id="adminBtn" type="button" hidden>Log masuk Admin</button></div>
+  </div>
+  <div class="stripe"></div>
+</header>
+<div class="wrap"><div class="login" id="login" hidden>
+  <form id="loginForm" class="login-in">
+    <div style="min-width:0"><h3>Log masuk Admin</h3><p id="loginMsg">Masukkan PIN admin untuk memasukkan skor perlawanan.</p></div>
+    <div class="login-row"><label for="pin" class="sr">PIN admin</label><input id="pin" type="password" autocomplete="current-password" placeholder="PIN" maxlength="40"><button class="btn login-go" type="submit" id="loginGo">Masuk</button><button class="btn login-x" type="button" id="loginCancel">Batal</button></div>
+  </form>
+</div></div>
+
+<div class="wrap">
+<main>
+  <section>
+    <div class="sec-h"><h2>Kad Skor Perlawanan</h2><small id="updated"></small></div>
+    <div class="board" id="board"></div>
+  </section>
+
+  <div class="grid2">
+    <section>
+      <div class="sec-h"><h2>Kedudukan</h2><small>Dikira automatik</small></div>
+      <div class="card">
+        <div class="tbl-wrap"><table id="standings"></table></div>
+        <div class="legend">P main · M menang · K kalah · SM/SK set menang/kalah · NS nisbah set · NM nisbah mata</div>
+      </div>
+      <div class="tech">
+        <img src="logo-nsva.png" alt="Logo Persatuan Bola Tampar Negeri Sembilan (NSVA)" width="64" height="64">
+        <div style="min-width:0"><div class="tech-k">Pengurusan Teknikal Kejohanan</div>
+        <div class="tech-n">Persatuan Bola Tampar Negeri Sembilan</div>
+        <div class="tech-s">NSVA · Pengadil, pencatat skor &amp; keputusan rasmi</div></div>
+      </div>
+      <div class="rules" style="margin-top:12px">
+        <div><b>Sistem mata:</b> Menang 2–0 = 3 mata · Menang 2–1 = 2 mata · Kalah 1–2 = 1 mata · Kalah 0–2 = 0 mata</div>
+        <div><b>Setiap set:</b> 15 mata · mesti beza 2 mata · <b>deuce had 17</b> (pada 16–16, mata seterusnya menang set)</div>
+        <div><b>Penentu seri:</b> Mata → Menang → Nisbah set → Nisbah mata → Keputusan bersemuka</div>
+      </div>
+    </section>
+    <section>
+      <div class="sec-h"><h2>Jadual &amp; Keputusan</h2><small>Masa anggaran</small></div>
+      <div class="matches" id="matches"></div>
+    </section>
+  </div>
+</main>
+</div>
+<footer><div class="wrap"><img src="logo-nsva.png" alt="" width="28" height="28"><span>Keputusan rasmi disahkan oleh Pengurusan Teknikal, Persatuan Bola Tampar Negeri Sembilan (NSVA)</span></div></footer>
+
+<script>
+(function(){
+/* ===== TETAPAN ===== */
+// ID Google Sheet skor (bahagian antara /d/ dan /edit dalam pautan Sheet)
+const SHEET_ID="1O1a1ScbtuMlfHwsD-y0uDOVKMChbeUJT3-7HYywGWao";
+const REFRESH_SECONDS=15;
+// Pautan Web App Google Apps Script (untuk admin simpan skor)
+const ADMIN_URL="https://script.google.com/macros/s/AKfycbyIlEEMwxI0brLZ5zzVo9z1IsQhufrK-jLPsMidc3rVQNVktE3D52if1Qwc54uU8JLd/exec";
+const ADMIN_ON=/^https:\/\/script\.google\.com\//.test(ADMIN_URL);
+let admin=false,pin="",loginOpen=false,manualMsg=null,saving=false,confirmReset=null;const draft={};
+try{pin=sessionStorage.getItem("yns-pin")||"";admin=!!pin&&ADMIN_ON}catch(e){}
+async function post(body){
+  const r=await fetch(ADMIN_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});
+  return r.json();
+}
+function setAdmin(p){pin=p;admin=!!p;try{p?sessionStorage.setItem("yns-pin",p):sessionStorage.removeItem("yns-pin")}catch(e){}}
+const TARGET=15, CAP=17;
+
+// Jadual asal (digunakan jika Sheet belum dapat dibaca)
+const DEFAULT=[
+  {kod:"P1",t:"10.30 PAGI",a:"ADMIN X",            b:"K.E.M"},
+  {kod:"P2",t:"11.00 PAGI",a:"UNBEATEN",           b:"BUKAN BIASHE-BIASHE"},
+  {kod:"P3",t:"11.30 PAGI",a:"BUKAN BIASHE-BIASHE",b:"K.E.M"},
+  {kod:"P4",t:"12.00 TGH", a:"ADMIN X",            b:"UNBEATEN"},
+  {kod:"P5",t:"12.30 TGH", a:"UNBEATEN",           b:"K.E.M"},
+  {kod:"P6",t:"1.00 PTG",  a:"BUKAN BIASHE-BIASHE",b:"ADMIN X"},
+];
+let M=DEFAULT.map(x=>({...x,sets:[[0,0],[0,0],[0,0]],bad:null}));
+let sel=null, loaded=false, lastOk=null, failed=false;
+
+/* ===== peraturan ===== */
+const setDone=s=>{const hi=Math.max(s[0],s[1]),lo=Math.min(s[0],s[1]);return hi>=TARGET&&(hi-lo>=2||hi===CAP)};
+function check(sets){ // pulangkan mesej ralat atau null
+  let wa=0,wb=0;
+  for(let i=0;i<3;i++){
+    const [a,b]=sets[i],hi=Math.max(a,b),lo=Math.min(a,b),played=a+b>0;
+    if(played&&(wa===2||wb===2))return `Set ${i+1} diisi selepas perlawanan tamat`;
+    if(hi>CAP)return `Set ${i+1}: melebihi ${CAP} mata`;
+    if(hi>TARGET&&lo<hi-2)return `Set ${i+1}: ${a}–${b} tidak sah`;
+    if(setDone(sets[i])){a>b?wa++:wb++}
+    else if(played&&sets.slice(i+1).some(x=>x[0]+x[1]>0))return `Set ${i+1} belum tamat tetapi set seterusnya diisi`;
+  }
+  return null;
+}
+function st(m){
+  let wa=0,wb=0,cur=-1;
+  for(let i=0;i<3;i++){
+    if(wa===2||wb===2)break;
+    const s=m.sets[i];
+    if(setDone(s)){s[0]>s[1]?wa++:wb++}else{cur=i;break}
+  }
+  const final=!m.bad&&(wa===2||wb===2);
+  const pts=m.sets.reduce((x,s)=>[x[0]+s[0],x[1]+s[1]],[0,0]);
+  return {wa,wb,cur:final?-1:cur,final,started:pts[0]+pts[1]>0,pts};
+}
+function liveIdx(){
+  let i=M.findIndex(m=>{const s=st(m);return s.started&&!s.final});
+  if(i>=0)return i;
+  i=M.findIndex(m=>!st(m).final);
+  return i>=0?i:M.length-1;
+}
+
+/* ===== baca Google Sheet ===== */
+function parseCSV(t){
+  const rows=[];let row=[],f="",q=false;
+  for(let i=0;i<t.length;i++){
+    const c=t[i];
+    if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;
+    else if(c===","){row.push(f);f=""}
+    else if(c==="\n"||c==="\r"){if(c==="\r"&&t[i+1]==="\n")i++;row.push(f);rows.push(row);row=[];f=""}
+    else f+=c;
+  }
+  if(f!==""||row.length){row.push(f);rows.push(row)}
+  return rows;
+}
+const num=v=>{const n=parseInt(String(v).trim(),10);return Number.isFinite(n)&&n>=0?n:0};
+async function load(){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&_=${Date.now()}`;
+  try{
+    const r=await fetch(url,{cache:"no-store"});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const text=await r.text();
+    if(/^\s*</.test(text))throw new Error("Sheet tidak dikongsi secara awam");
+    const rows=parseCSV(text).filter(r=>r.some(c=>c.trim()!==""));
+    const head=rows.shift().map(h=>h.trim().toUpperCase());
+    const ix=n=>head.indexOf(n);
+    const need=["KOD","PASUKAN A","PASUKAN B","SET1 A","SET1 B","SET2 A","SET2 B","SET3 A","SET3 B"];
+    if(need.some(n=>ix(n)<0))throw new Error("Tajuk lajur Sheet telah diubah");
+    const next=rows.filter(r=>(r[ix("KOD")]||"").trim()).map((r,n)=>{
+      const d=DEFAULT[n]||{};
+      const sets=[1,2,3].map(k=>[num(r[ix(`SET${k} A`)]),num(r[ix(`SET${k} B`)])]);
+      return {kod:r[ix("KOD")].trim(),t:(ix("MASA")>=0&&r[ix("MASA")].trim())||d.t||"",
+        a:r[ix("PASUKAN A")].trim()||d.a,b:r[ix("PASUKAN B")].trim()||d.b,sets,bad:check(sets)};
+    });
+    if(next.length){M=next}
+    loaded=true;failed=false;lastOk=new Date();
+  }catch(e){failed=true;console.warn(e)}
+  render();
+}
+
+/* ===== paparan ===== */
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const hhmm=d=>d.toLocaleTimeString("ms-MY",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+function render(){
+  const md=document.getElementById("mode");
+  md.className="mode"+(failed?" err":loaded?" live":"");
+  md.innerHTML='<span class="dot"></span>'+(failed?(loaded?"Sambungan terputus":"Gagal baca skor"):loaded?"Skor langsung":"Memuatkan…");
+  document.getElementById("updated").textContent=lastOk?`Dikemas kini ${hhmm(lastOk)} · auto setiap ${REFRESH_SECONDS} saat`:"";
+  const ab=document.getElementById("adminBtn");
+  ab.hidden=!ADMIN_ON; ab.textContent=admin?"Log keluar Admin":"Log masuk Admin"; ab.classList.toggle("on",admin);
+  document.getElementById("login").hidden=!loginOpen||admin;
+  renderBoard();renderStandings();renderMatches();
+}
+function manualForm(m){
+  if(!admin)return "";
+  const dr=draft[m.kod]||{};
+  const val=(j,k)=>{const key=`ms-${j}-${k}`;if(key in dr)return dr[key];const x=m.sets[j];return x[0]+x[1]>0?String(x[k]):""};
+  const fs=[0,1,2].map(j=>`<fieldset><legend>Set ${j+1}</legend>
+      <div class="pair"><input id="ms-${j}-0" type="number" min="0" max="17" inputmode="numeric" value="${esc(val(j,0))}" aria-label="Set ${j+1} ${esc(m.a)}"><span>–</span><input id="ms-${j}-1" type="number" min="0" max="17" inputmode="numeric" value="${esc(val(j,1))}" aria-label="Set ${j+1} ${esc(m.b)}"></div>
+      <div class="names"><span>${esc(m.a)}</span><span>${esc(m.b)}</span></div></fieldset>`).join("");
+  const msg=manualMsg?`<span class="msg ${manualMsg.k}">${esc(manualMsg.t)}</span>`:`<span class="msg">Isi skor setiap set (ke 15, had 17). Biarkan kosong jika set belum dimainkan.</span>`;
+  return `<form class="manual" id="manualForm" novalidate><h3>Admin · Masukkan skor ${esc(m.kod)}</h3><div class="sets-in">${fs}</div>
+    <div class="foot"><button class="btn plus" type="submit" ${saving?"disabled":""} style="flex:none;font-size:17px;padding:10px 18px">${saving?"Menyimpan…":"Simpan skor"}</button>${msg}</div>
+    <div class="reset-row">${confirmReset==="one"
+      ?`<span class="rq">Padam semua skor ${esc(m.kod)} (${esc(m.a)} vs ${esc(m.b)})?</span><button class="btn danger" type="button" data-reset="one-yes" ${saving?"disabled":""}>Ya, padam ${esc(m.kod)}</button><button class="btn ghost" type="button" data-reset="no">Batal</button>`
+      :confirmReset==="all"
+      ?`<span class="rq">Padam skor SEMUA 6 perlawanan? Tindakan ini tidak boleh dibatalkan.</span><button class="btn danger" type="button" data-reset="all-yes" ${saving?"disabled":""}>Ya, reset semua</button><button class="btn ghost" type="button" data-reset="no">Batal</button>`
+      :`<button class="btn ghost" type="button" data-reset="one" ${saving?"disabled":""}>Reset skor ${esc(m.kod)}</button><button class="btn ghost danger-txt" type="button" data-reset="all" ${saving?"disabled":""}>Reset semua data</button>`}</div></form>`;
+}
+const EMPTY=[["",""],["",""],["",""]];
+async function resetMatches(list){
+  saving=true;manualMsg={k:"",t:"Memadam…"};render();
+  let ok=0,err=null;
+  for(const m of list){
+    const hasData=m.sets.some(x=>x[0]+x[1]>0);
+    if(!hasData){ok++;continue}
+    try{
+      const r=await post({action:"save",pin,kod:m.kod,sets:EMPTY});
+      if(r&&r.ok){m.sets=[[0,0],[0,0],[0,0]];m.bad=null;delete draft[m.kod];ok++}
+      else{err=(r&&r.error)||"ralat tidak diketahui";if(err==="PIN salah")break}
+    }catch(e){err="Semak internet"}
+  }
+  saving=false;confirmReset=null;
+  if(err==="PIN salah"){setAdmin("");manualMsg=null;loginOpen=true;render();return}
+  manualMsg=err?{k:"err",t:`Reset tidak lengkap (${ok}/${list.length}): ${err}. Cuba lagi.`}
+    :{k:"ok",t:list.length>1?"Semua skor telah dikosongkan ✓":`Skor ${list[0].kod} telah dikosongkan ✓`};
+  render();setTimeout(load,2000);
+}
+async function saveManual(i){
+  const m=M[i], dr=draft[m.kod]||{}, raw=[], sets=[];
+  for(let j=0;j<3;j++){
+    const g=k=>{const key=`ms-${j}-${k}`;const v=key in dr?dr[key]:document.getElementById(key).value;return String(v).trim()};
+    const a=g(0),b=g(1);
+    if((a==="")!==(b==="")){manualMsg={k:"err",t:`Set ${j+1}: isi skor kedua-dua pasukan.`};render();return}
+    const na=Number(a),nb=Number(b);
+    if(a!==""&&(!Number.isInteger(na)||!Number.isInteger(nb)||na<0||nb<0)){manualMsg={k:"err",t:`Set ${j+1}: skor mesti nombor bulat.`};render();return}
+    raw.push(a===""?["",""]:[na,nb]); sets.push(a===""?[0,0]:[na,nb]);
+  }
+  const bad=check(sets);
+  if(bad){manualMsg={k:"err",t:bad+"."};render();return}
+  saving=true;manualMsg=null;render();
+  try{
+    const r=await post({action:"save",pin,kod:m.kod,sets:raw});
+    if(r&&r.ok){
+      m.sets=sets;m.bad=null;delete draft[m.kod];
+      const s=st(m);
+      manualMsg={k:"ok",t:s.final?"Disimpan ✓ Keputusan dikira dalam kedudukan.":"Disimpan ✓"};
+      setTimeout(load,2000);
+    }else if(r&&r.error==="PIN salah"){
+      setAdmin("");manualMsg=null;loginOpen=true;
+      document.getElementById("loginMsg").textContent="PIN telah ditukar. Sila log masuk semula.";document.getElementById("loginMsg").className="err";
+    }else manualMsg={k:"err",t:"Gagal simpan: "+((r&&r.error)||"ralat tidak diketahui")};
+  }catch(e){manualMsg={k:"err",t:"Gagal simpan. Semak internet dan tekan Simpan skor sekali lagi."}}
+  saving=false;render();
+}
+function renderBoard(){
+  const ae=document.activeElement; const focusId=ae&&ae.closest&&ae.closest("#manualForm")?ae.id:null;
+  const i=sel!==null&&sel<M.length?sel:liveIdx(); const m=M[i]; const s=st(m);
+  const tag=m.bad?'<span class="pill next">Semakan skor</span>':s.final?'<span class="pill done">Tamat</span>':s.started?'<span class="pill live">Sedang berlangsung</span>':'<span class="pill next">Belum mula</span>';
+  const opts=M.map((x,n)=>`<option value="${n}" ${n===i?"selected":""}>${esc(x.kod)} · ${esc(x.t)} · ${esc(x.a)} vs ${esc(x.b)}</option>`).join("");
+  const cell=(j,k)=>{const x=m.sets[j];if(x[0]+x[1]===0)return '<td class="set empty">–</td>';
+    const done=setDone(x);const w=done&&x[k]>x[1-k];return `<td class="set ${w?"w":""} ${done?"":"prog"}">${x[k]}</td>`};
+  const row=(k,name,won)=>{const isW=s.final&&((k===0&&s.wa>s.wb)||(k===1&&s.wb>s.wa));
+    return `<tr class="${isW?"winrow":""}"><th scope="row" class="tn">${esc(name)}</th>${[0,1,2].map(j=>cell(j,k)).join("")}<td class="won">${won}</td></tr>`};
+  const status=m.bad?`<div class="warn">Skor dalam semakan pegawai teknikal (${esc(m.bad)})</div>`
+    :s.final?`<div class="winner">Pemenang: ${esc(s.wa>s.wb?m.a:m.b)} · ${Math.max(s.wa,s.wb)}–${Math.min(s.wa,s.wb)} set</div>`
+    :s.started?`<div class="status">Set ${s.cur+1} sedang dimainkan</div>`:`<div class="status">Dijadual jam ${esc(m.t)}</div>`;
+  document.getElementById("board").innerHTML=`
+    <div class="board-top"><span>${tag} &nbsp;Perlawanan ${i+1}</span>
+      <label><span class="sr">Pilih perlawanan</span><select id="pick">${opts}</select></label></div>
+    <div class="sc-wrap"><table class="sc">
+      <thead><tr><th class="tn">Pasukan</th><th>Set 1</th><th>Set 2</th><th>Set 3</th><th class="won">Set</th></tr></thead>
+      <tbody>${row(0,m.a,s.wa)}${row(1,m.b,s.wb)}</tbody></table></div>${status}${manualForm(m)}`;
+  if(focusId){const el=document.getElementById(focusId);if(el)el.focus()}
+  const mf=document.getElementById("manualForm");
+  if(mf){
+    mf.oninput=e=>{if(e.target.id){(draft[m.kod]=draft[m.kod]||{})[e.target.id]=e.target.value;manualMsg=null}};
+    mf.onsubmit=e=>{e.preventDefault();if(!saving)saveManual(i)};
+    mf.querySelectorAll("[data-reset]").forEach(b=>b.onclick=()=>{
+      const a=b.dataset.reset;
+      if(a==="one"||a==="all"){confirmReset=a;manualMsg=null;render()}
+      else if(a==="no"){confirmReset=null;render()}
+      else if(a==="one-yes")resetMatches([m]);
+      else if(a==="all-yes")resetMatches(M.slice());
+    });
+  }
+  document.getElementById("pick").onchange=e=>{sel=+e.target.value;manualMsg=null;confirmReset=null;render()};
+}
+function table(){
+  const names=[];M.forEach(m=>[m.a,m.b].forEach(n=>{if(n&&!names.includes(n))names.push(n)}));
+  const T=names.map((n,i)=>({i,n,P:0,M:0,K:0,SM:0,SK:0,MM:0,MK:0,pts:0}));
+  const by=n=>T[names.indexOf(n)], h2h={};
+  M.forEach(m=>{const s=st(m);if(!s.final)return;
+    const a=by(m.a),b=by(m.b);a.P++;b.P++;a.SM+=s.wa;a.SK+=s.wb;b.SM+=s.wb;b.SK+=s.wa;
+    a.MM+=s.pts[0];a.MK+=s.pts[1];b.MM+=s.pts[1];b.MK+=s.pts[0];
+    const aw=s.wa>s.wb,w=aw?a:b,l=aw?b:a,lsets=Math.min(s.wa,s.wb);
+    w.M++;l.K++;w.pts+=lsets===0?3:2;l.pts+=lsets===1?1:0;h2h[w.i+"-"+l.i]=1});
+  const r=(x,y)=>y===0?(x>0?Infinity:0):x/y;
+  T.forEach(t=>{t.NS=r(t.SM,t.SK);t.NM=r(t.MM,t.MK)});
+  T.sort((x,y)=>y.pts-x.pts||y.M-x.M||y.NS-x.NS||y.NM-x.NM||(h2h[y.i+"-"+x.i]?1:h2h[x.i+"-"+y.i]?-1:0)||x.i-y.i);
+  return T;
+}
+const fr=v=>v===Infinity?"MAX":v.toFixed(3);
+function renderStandings(){
+  const T=table(); const any=T.some(t=>t.P>0);
+  document.getElementById("standings").innerHTML=`<thead><tr><th>#</th><th class="team">Pasukan</th><th>P</th><th>M</th><th>K</th><th>SM</th><th>SK</th><th>NS</th><th>NM</th><th>Mata</th></tr></thead><tbody>${
+    T.map((t,k)=>`<tr class="${any&&k===0?"first":""}"><td class="rank">${k+1}</td><td class="team">${esc(t.n)}</td><td>${t.P}</td><td>${t.M}</td><td>${t.K}</td><td>${t.SM}</td><td>${t.SK}</td><td>${t.P?fr(t.NS):"–"}</td><td>${t.P?fr(t.NM):"–"}</td><td class="pts">${t.pts}</td></tr>`).join("")}</tbody>`;
+}
+function renderMatches(){
+  const cur=sel!==null&&sel<M.length?sel:liveIdx();
+  document.getElementById("matches").innerHTML=M.map((m,n)=>{
+    const s=st(m);
+    const tag=m.bad?'<span class="tag chk">Semakan</span>':s.final?'<span class="tag done">Tamat</span>':s.started?'<span class="tag live">Langsung</span>':'<span class="tag next">Akan datang</span>';
+    const sets=m.sets.filter(x=>x[0]+x[1]>0).map(x=>`${x[0]}–${x[1]}`).join(", ");
+    const tm=esc(m.t).split(" ");
+    return `<div class="m ${n===cur?"sel":""}">
+      <div class="time num">${tm[0]}<small>${esc(m.kod)}${tm[1]?" · "+tm.slice(1).join(" "):""}</small></div>
+      <div class="vs">
+        <div class="row ${s.final&&s.wa>s.wb?"w":""}"><span>${esc(m.a)}</span><em>${s.started?s.wa:""}</em></div>
+        <div class="row ${s.final&&s.wb>s.wa?"w":""}"><span>${esc(m.b)}</span><em>${s.started?s.wb:""}</em></div>
+        ${sets?`<div class="sets">Set: ${sets}</div>`:""}
+      </div>
+      <div class="act">${tag}<button class="btn small" data-pick="${n}" type="button">${admin?"Skor":"Lihat"}</button></div>
+    </div>`}).join("");
+  document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{sel=+b.dataset.pick;manualMsg=null;render();document.getElementById("board").scrollIntoView({behavior:"smooth",block:"start"})});
+}
+
+document.getElementById("refresh").onclick=load;
+document.getElementById("adminBtn").onclick=()=>{
+  if(admin){setAdmin("");loginOpen=false;manualMsg=null;render();return}
+  loginOpen=!loginOpen;render();
+  if(loginOpen){const p=document.getElementById("pin");p.value="";p.focus()}
+};
+document.getElementById("loginCancel").onclick=()=>{loginOpen=false;render()};
+document.getElementById("loginForm").onsubmit=async e=>{
+  e.preventDefault();
+  const p=document.getElementById("pin"),msg=document.getElementById("loginMsg"),go=document.getElementById("loginGo");
+  const v=p.value.trim(); if(!v)return;
+  go.disabled=true;go.textContent="Menyemak…";
+  try{
+    const r=await post({action:"login",pin:v});
+    if(r&&r.ok){setAdmin(v);loginOpen=false;msg.textContent="Masukkan PIN admin untuk memasukkan skor perlawanan.";msg.className="";render();
+      document.getElementById("board").scrollIntoView({behavior:"smooth",block:"start"})}
+    else{msg.textContent="PIN salah. Cuba lagi.";msg.className="err";p.select()}
+  }catch(err){msg.textContent="Tidak dapat menghubungi pelayan skor. Semak internet.";msg.className="err"}
+  go.disabled=false;go.textContent="Masuk";
+};
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
+render(); load(); setInterval(()=>{if(!document.hidden)load()},REFRESH_SECONDS*1000);
+})();
+</script>
+</body>
+</html>
